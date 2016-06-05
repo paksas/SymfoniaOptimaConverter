@@ -58,6 +58,8 @@ namespace SymfoniaOptimaConverter.Optima.RegularInvoice
       private float                    m_netTotal = 0.0f;
       private float                    m_vatTotal = 0.0f;
 
+      private bool                     m_isInvoiceTaxFree = true;
+
       private List< VATSummary >       m_vatSummaryTable = new List<VATSummary>();
 
       /**
@@ -111,6 +113,12 @@ namespace SymfoniaOptimaConverter.Optima.RegularInvoice
          // add the amounts to the total summary
          m_netTotal += item.m_netValue;
          m_vatTotal += item.m_vatValue;
+
+         // If all items are tax free, then we should change the category of the invoice
+         if ( !item.m_isTaxFree )
+         {
+            m_isInvoiceTaxFree = false;
+         }
       }
 
       /**
@@ -150,10 +158,7 @@ namespace SymfoniaOptimaConverter.Optima.RegularInvoice
                ),
 
 
-            new XElement( "KATEGORIA",
-               new XElement( "KOD", "T" ),
-               new XElement( "OPIS", "Sprzedaż towaru" )
-               ),
+            getInvoiceCategoryCode(),
 
             new XElement( "WALUTA",
                new XElement( "SYMBOL", "PLN" ),
@@ -213,6 +218,24 @@ namespace SymfoniaOptimaConverter.Optima.RegularInvoice
          foreach( VATSummary summary in m_vatSummaryTable )
          {
             summary.SaveToXml( rootElem );
+         }
+      }
+
+      private XElement getInvoiceCategoryCode()
+      {
+         if ( m_isInvoiceTaxFree )
+         {
+            return new XElement("KATEGORIA",
+               new XElement("KOD", "U"),
+               new XElement("OPIS", "Usługa")
+               );
+         }
+         else
+         {
+            return new XElement("KATEGORIA",
+               new XElement("KOD", "T"),
+               new XElement("OPIS", "Sprzedaż towaru")
+               );
          }
       }
 

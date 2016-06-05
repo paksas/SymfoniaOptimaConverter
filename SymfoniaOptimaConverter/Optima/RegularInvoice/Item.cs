@@ -16,6 +16,7 @@ namespace SymfoniaOptimaConverter.Optima.RegularInvoice
       public float       m_vatAmount;
       public float       m_netValue;
       public float       m_vatValue;
+      public bool        m_isTaxFree;
 
       public string      m_measureItem;
 
@@ -33,6 +34,7 @@ namespace SymfoniaOptimaConverter.Optima.RegularInvoice
          m_price = symfoniaItem.m_price;
          m_netValue = symfoniaItem.m_netValue;
          m_vatValue = symfoniaItem.m_vatValue;
+         m_isTaxFree = symfoniaItem.m_isTaxFree;
 
          m_vatAmount = symfoniaItem.m_vatAmount;
          m_measureItem = symfoniaItem.m_measureItem;
@@ -45,15 +47,10 @@ namespace SymfoniaOptimaConverter.Optima.RegularInvoice
       {
          CultureInfo ci = Core.XmlParser.GetCultureInfo();
 
-         // We're going to use predefined merchandise numbers.
-         // One type is defined for merchandise with 23% VAT tax, the other - with 8% VAT tax, so we need to
-         // determine which one we're dealing with
-         int merchandiseCode = m_vatAmount >= 23.0f ? 1 : 2; // 1 - 23% VAT, 2 - 8% VAT
-
          xmlDoc.Add( new XElement( "POZYCJA",
             new XElement( "LP", m_lp ),
             new XElement( "TOWAR", 
-               new XElement( "KOD", merchandiseCode.ToString( ci ) ),
+               new XElement( "KOD", getMerchandiseCode(ci) ),
                new XElement( "NAZWA", "" ),
                new XElement( "OPIS", "" ),
                new XElement( "EAN", "" ),
@@ -61,7 +58,7 @@ namespace SymfoniaOptimaConverter.Optima.RegularInvoice
                ),
             new XElement( "STAWKA_VAT",
                new XElement( "STAWKA", m_vatAmount ),
-               new XElement( "FLAGA", "2" ),
+               new XElement( "FLAGA", getItemFlag() ),
                new XElement( "ZRODLOWA", "0.00" )
                ),
             new XElement( "CENY",
@@ -91,6 +88,30 @@ namespace SymfoniaOptimaConverter.Optima.RegularInvoice
                )
             )
          );
+      }
+
+      private string getItemFlag()
+      {
+         if ( m_isTaxFree )
+         {
+            // tax free items should have the item flag set to 1
+            return "1";
+         }
+         else
+         {
+            // regular items should have the item flag set to 1
+            return "2";
+         }
+      }
+
+      private string getMerchandiseCode(CultureInfo ci)
+      {
+         // We're going to use predefined merchandise numbers.
+         // One type is defined for merchandise with 23% VAT tax, the other - with 8% VAT tax, so we need to
+         // determine which one we're dealing with
+
+         int merchandiseCode = m_vatAmount >= 23.0f ? 1 : 2; // 1 - 23% VAT, 2 - 8% VAT
+         return merchandiseCode.ToString();
       }
    }
 }

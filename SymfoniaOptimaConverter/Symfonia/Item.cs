@@ -16,6 +16,7 @@ namespace SymfoniaOptimaConverter.Symfonia
       public float         m_vatAmount;
       public float         m_netValue;
       public float         m_vatValue;
+      public bool          m_isTaxFree;
 
       public string        m_measureItem;
 
@@ -49,9 +50,12 @@ namespace SymfoniaOptimaConverter.Symfonia
          if ( String.Equals( vatAmount.ToLower(), "zw" ) )
          {
             m_vatAmount = 0.0f;
+            m_isTaxFree = true;
          }
          else
          {
+            m_isTaxFree = false;
+
             try
             {
                string formatedVatAmount = vatAmount.Replace( "%", "" ) + ".00";

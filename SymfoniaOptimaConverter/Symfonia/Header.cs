@@ -23,6 +23,7 @@ namespace SymfoniaOptimaConverter.Symfonia
       public float       m_vatTotal;
 
       public bool        m_convertValuesToNet;
+      public bool        m_isTaxFree;
 
       /**
        * Constructor.
