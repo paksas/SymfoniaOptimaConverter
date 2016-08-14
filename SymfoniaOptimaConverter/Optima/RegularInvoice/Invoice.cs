@@ -26,14 +26,16 @@ namespace SymfoniaOptimaConverter.Optima.RegularInvoice
        */
       public Invoice( SymfoniaOptimaConverter.Symfonia.Invoice symfoniaInvoice )
       {
-         m_header = new Header( symfoniaInvoice.header );
+         m_header = new Header();
+         m_header.Init( symfoniaInvoice.header );
          
          m_header.issuer = new Contractor( symfoniaInvoice.issuer );
          m_header.buyer = new Contractor( symfoniaInvoice.buyer );
 
          foreach( SymfoniaOptimaConverter.Symfonia.Item symfoniaItem in symfoniaInvoice.items )
          {
-            Item optimaItem = new Item( symfoniaItem );
+            Item optimaItem = new Item();
+            optimaItem.Init( symfoniaItem );
             m_items.Add( optimaItem );
          }
       }

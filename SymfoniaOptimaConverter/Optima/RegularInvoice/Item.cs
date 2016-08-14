@@ -24,9 +24,9 @@ namespace SymfoniaOptimaConverter.Optima.RegularInvoice
       public string      m_name;
 
       /**
-       * Constructor.
+       * Initializes an item.
        */
-      public Item( SymfoniaOptimaConverter.Symfonia.Item symfoniaItem )
+      public void Init( SymfoniaOptimaConverter.Symfonia.Item symfoniaItem )
       {
          m_lp = symfoniaItem.m_lp;
 

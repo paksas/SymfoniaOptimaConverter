@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
 using System.Xml.Linq;
 
 namespace SymfoniaOptimaConverter.Optima.RegularInvoice
 {
-   class VATSummary
+   public class VATSummary
    {
       public float                     m_vatAmount;
       public float                     m_vatValue;
@@ -17,15 +14,16 @@ namespace SymfoniaOptimaConverter.Optima.RegularInvoice
        * Stores the contents in a dedicated record in an XML file.
        * 
        * @param xmlDoc
+       * @param isInvoiceTaxFree
        */
-      public void SaveToXml( XContainer xmlDoc )
+      public void SaveToXml( XContainer xmlDoc, bool isInvoiceTaxFree )
       {
          CultureInfo  ci = Core.XmlParser.GetCultureInfo();
 
          xmlDoc.Add( new XElement( "LINIA_VAT", 
                new XElement( "STAWKA_VAT",
                   new XElement( "STAWKA", m_vatAmount.ToString( ci ) ),
-                  new XElement( "FLAGA", "2" ),
+                  new XElement( "FLAGA", isInvoiceTaxFree ? "1" : "2" ),
                   new XElement( "ZRODLOWA", "0.00" )
                   ),
                new XElement( "NETTO", m_netValue.ToString(ci) ),
@@ -55,12 +53,12 @@ namespace SymfoniaOptimaConverter.Optima.RegularInvoice
       public string                    m_paymentDate;
       public string                    m_paymentMode;
 
-      private float                    m_netTotal = 0.0f;
-      private float                    m_vatTotal = 0.0f;
+      public float                     m_netTotal = 0.0f;
+      public float                     m_vatTotal = 0.0f;
 
-      private bool                     m_isInvoiceTaxFree = true;
+      public bool                      m_isInvoiceTaxFree = true;
 
-      private List< VATSummary >       m_vatSummaryTable = new List<VATSummary>();
+      public List< VATSummary >        m_vatSummaryTable = new List<VATSummary>();
 
       /**
        * Invoice recipient.
@@ -81,9 +79,9 @@ namespace SymfoniaOptimaConverter.Optima.RegularInvoice
       }
 
       /**
-       * Constructor.
+       * Initializes the header.
        */
-      public Header( SymfoniaOptimaConverter.Symfonia.Header symfoniaHeader )
+      public void Init( SymfoniaOptimaConverter.Symfonia.Header symfoniaHeader )
       {
          m_invoiceNo = symfoniaHeader.m_invoiceNo;
          m_docDate = symfoniaHeader.m_issueDate;
@@ -101,7 +99,7 @@ namespace SymfoniaOptimaConverter.Optima.RegularInvoice
        * 
        * @param item
        */
-      internal void Process( Item item )
+      public void Process( Item item )
       {
          VATSummary summary = new VATSummary();
          summary.m_vatAmount = item.m_vatAmount;
@@ -157,8 +155,7 @@ namespace SymfoniaOptimaConverter.Optima.RegularInvoice
                new XElement( "TERMIN", m_paymentDate )
                ),
 
-
-            getInvoiceCategoryCode(),
+            insertInvoiceCategoryCode(),
 
             new XElement( "WALUTA",
                new XElement( "SYMBOL", "PLN" ),
@@ -217,11 +214,11 @@ namespace SymfoniaOptimaConverter.Optima.RegularInvoice
 
          foreach( VATSummary summary in m_vatSummaryTable )
          {
-            summary.SaveToXml( rootElem );
+            summary.SaveToXml( rootElem, m_isInvoiceTaxFree );
          }
       }
 
-      private XElement getInvoiceCategoryCode()
+      private XElement insertInvoiceCategoryCode()
       {
          if ( m_isInvoiceTaxFree )
          {
