@@ -35,6 +35,11 @@ namespace SymfoniaOptimaConverter.Stages.DBConnectionStates
          m_dlg.okButton.Text = "OK";
 
          m_dlg.companyName.Items.Clear();
+         if ( m_companyNamesCollectionTask.Result == null )
+         {
+            return;
+         }
+
          foreach (string name in m_companyNamesCollectionTask.Result)
          {
             m_dlg.companyName.Items.Add(name);

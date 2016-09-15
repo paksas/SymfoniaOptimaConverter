@@ -170,7 +170,7 @@ namespace SymfoniaOptimaConverter.Stages
       {
          DateTime now = DateTime.Now;
 
-         string nowStr = now.ToString();
+         string nowStr = now.ToString("yyyy-MM-dd hh:mm:ss");
          string guid = Guid.NewGuid().ToString();
 
          // we need to split the name into up to 3 parts if one exceeds the length of 40
